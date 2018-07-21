@@ -1,1 +1,1 @@
-(setq py-autopep8-options '("--max-line-length=120"))
+(setq autopep8-options '("--max-line-length=120"))

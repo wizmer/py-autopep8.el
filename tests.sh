@@ -5,7 +5,7 @@ TEST_FILE=/tmp/py-test-file.py
 # Run the test:
 # - First argument is test folder
 # - Second argument defines whether or not
-# py-autopep8-buffer should be called
+# autopep8-buffer should be called
 test_autopep() {
   echo $FUNCNAME $1
   rm -f $TEST_FILE
@@ -15,11 +15,11 @@ test_autopep() {
 	fi
 
 	if [ "$2" = true ]; then
-		call_autopep8="-f py-autopep8-buffer"
+		call_autopep8="-f autopep8-buffer"
 	fi
 
   emacs --batch \
-        --load py-autopep8.el \
+        --load autopep8-mode.el \
         $load_init_file \
         ./tests/$1/before.py \
         $call_autopep8 \
@@ -33,7 +33,7 @@ test_autopep() {
 # The package won't actually be installed
 # in the user distribution because we are using --batch
 test_install_package() {
-  emacs --batch py-autopep8.el -f package-install-from-buffer
+  emacs --batch autopep8-mode.el -f package-install-from-buffer
 }
 
 
