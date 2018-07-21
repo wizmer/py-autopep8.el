@@ -45,6 +45,9 @@ main() {
 	done
 
 	test_autopep 0$i false
+
+	test_autopep "test-config" true
+
 }
 
 

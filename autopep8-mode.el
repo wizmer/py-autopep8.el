@@ -23,11 +23,15 @@
 
 ;;; Code:
 
+(setq autopep8-config nil)
+
 (define-minor-mode autopep8-mode
   "Automatic python code formating with autopep8"
   :group 'autopep8
   (if autopep8-mode
-		(add-hook 'before-save-hook 'autopep8-buffer nil 'buffer-local)
+		(progn
+			(add-hook 'before-save-hook 'autopep8-buffer nil 'buffer-local)
+			(setq-local autopep8-config (autopep8--locate-any-config-file)))
 		(remove-hook 'before-save-hook 'autopep8-buffer 'buffer-local)))
 
 
@@ -61,9 +65,57 @@ Note that `--in-place' is used by default."
 		t
 		"py"))
 
+(defun autopep8--locate-any-config-file ()
+	"Try to locate a configuration FILENAME in the following ways
+	1. By path
+  2. In ancestors directory
+  3. In the home folder"
+
+
+	(or
+		(autopep8--locate-config-file-ancestor-directories ".pep8")
+		(autopep8--locate-config-file-ancestor-directories "pep8")
+		(autopep8--locate-config-file-ancestor-directories "setup.cfg")
+		(autopep8--locate-config-file-ancestor-directories "tox.ini")
+))
+
+(defun autopep8--locate-config-file-home (filename)
+  "Locate a configuration FILENAME in the home directory.
+
+Return the absolute path, if FILENAME exists in the user's home
+directory, or nil otherwise."
+  (let ((path (expand-file-name filename "~")))
+    (when (file-exists-p path)
+      path)))
+
+
+(defun autopep8--locate-config-file-ancestor-directories (filename)
+  "Locate a configuration FILENAME in ancestor directories.
+
+If the current buffer has a file name, search FILENAME in the
+directory of the current buffer and all ancestors thereof (see
+`locate-dominating-file').  If the file is found, return its
+absolute path.  Otherwise return nil."
+  (when-let* ((basefile (buffer-file-name))
+								(directory (locate-dominating-file basefile filename)))
+    (expand-file-name filename directory)))
+
+(defun autopep8--locate-config-file-by-path (filepath)
+  "Locate a configuration file by a FILEPATH.
+
+If FILEPATH is a contains a path separator, expand it against the
+default directory and return it if it points to an existing file.
+Otherwise return nil."
+  ;; If the path is just a plain file name, skip it.
+  (unless (string= (file-name-nondirectory filepath) filepath)
+    (let ((file-name (expand-file-name filepath)))
+      (and (file-exists-p file-name) file-name))))
+
 (defun autopep8--call-executable (errbuf file)
+	(message (format "%s" autopep8-config))
   (zerop (apply 'call-process autopep8-command nil errbuf nil
-           (append autopep8-options `("--in-place", file)))))
+					 (append autopep8-options `("--in-place", file)
+						 (when autopep8-config `("--global-config", autopep8-config))))))
 
 
 ;; This code is initially copied from go-mode.el (copyright the go-mode authors).
