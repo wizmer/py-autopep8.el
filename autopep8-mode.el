@@ -52,6 +52,14 @@ Note that `--in-place' is used by default."
     nil
     "py"))
 
+;;;###autoload
+(defun autopep8-region ()
+	"Uses the \"autopep8\" tool to reformat the active region."
+	(interactive)
+	(autopep8--apply-executable-to-buffer autopep8-command
+		'autopep8--call-executable
+		t
+		"py"))
 
 (defun autopep8--call-executable (errbuf file)
   (zerop (apply 'call-process autopep8-command nil errbuf nil
@@ -107,7 +115,6 @@ Note that `--in-place' is used by default."
 																							only-on-region
 																							file-extension)
   "Formats the current buffer according to the executable"
-	(message (format "Only on region: %s" file-extension))
   (when (not (executable-find executable-name))
     (error (format "%s command not found." executable-name)))
   (let ((tmpfile (make-temp-file executable-name nil (concat "." file-extension)))
