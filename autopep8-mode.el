@@ -73,6 +73,7 @@ Note that `--in-place' is used by default."
 
 
 	(or
+	        (autopep8--locate-config-file-ancestor-directories ".flake8")
 		(autopep8--locate-config-file-ancestor-directories ".pep8")
 		(autopep8--locate-config-file-ancestor-directories "pep8")
 		(autopep8--locate-config-file-ancestor-directories "setup.cfg")
